@@ -215,6 +215,40 @@ ggsave(plot = stim.scores.excl,
        bg = "transparent"
 )
 
+# Sanity check #################################################################
+################################################################################
+poa.all$AgeGrpBin <- ifelse(poa.all$AgeGrp < 5, "Child", "Adult")
+by.pair.avgs <- poa.all %>%
+  filter(StimType != "filler") %>%
+  group_by(AgeGrpBin, Pair, Word) %>%
+  summarize(avg.cor = mean(Correct))
+k.pair.avgs <- by.pair.avgs[grep("k", by.pair.avgs$Pair),]
+k.pair.avgs$Pair = factor(k.pair.avgs$Pair, levels = c(
+  "p-k", "t-k", "d-k", "dp-kp"))
+k.pair.avgs$Word = factor(k.pair.avgs$Word, levels = c(
+  "pAA", "tAA", "dee", "dpNee", "kAA", "kee", "kpNee",
+  "dii", "dpI", "kEmkEm", "kma", "ndAA", "nee", "ngomo",
+  "nnuu", "ntAA", "nuu", "pala", "te", "tii", "tpee", "tpI",
+  "wNAA", "yi"))
+
+by.pair.agegrp.perf <-  ggplot(
+  k.pair.avgs, aes(x = Word, y = avg.cor)) +
+  geom_col(aes(colour = Pair, fill = Pair)) +
+  facet_wrap(~ AgeGrpBin + Pair, ncol=4, scales = "free") +
+  coord_cartesian(ylim=c(0,1)) +
+      ylab("Proportion correct") + xlab("Word")	+
+  geom_hline(yintercept = .75, linetype = "dashed") +
+	basic.theme
+
+ggsave(plot = by.pair.agegrp.perf,
+       filename = "SUP-correct_by_item_k-pairs-postPtcpExcl-postItemExcl.png",
+       path = results.plot.path,
+       width = 60,
+       height = 45,
+       units = "cm",dpi = 72,
+       bg = "transparent"
+)
+
 # Analyze data #################################################################
 ################################################################################
 poa.all$ContrastFR <- factor(poa.all$Contrast,
